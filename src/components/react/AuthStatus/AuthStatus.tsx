@@ -1,32 +1,37 @@
+import { OAUTH_CONFIG } from "@/config";
+
 type Status = "apierror" | "error" | "success";
 
 export default function AuthStatus(message: string | AuthError, status: Status, injectScript: string | undefined = undefined) {
     return (
         <>
             {status === "error" && (
-                <div className="info-card error">
-                    <p>Error</p>
+                <div className="status-card error">
+                    <p className="title">An error occured</p>
                     <p>{message as string}</p>
+                    <p>Tab will close in {OAUTH_CONFIG.error_close / 1000} second(s)...</p>
                 </div>
             )}
 
             {status === "apierror" && (
-                <div className="info-card error">
-                    <p>Error</p>
-                    <div>
+                <div className="status-card error">
+                    <p className="title">An error occured</p>
+                    <div className="status-meta">
                         <p>{(message as AuthError).error}</p>
                         <p>Description: {(message as AuthError).error_description}</p>
                         <p>
                             Help: <a href={(message as AuthError).error_uri}>{(message as AuthError).error_uri}</a>
                         </p>
                     </div>
+                    <p>Tab will close in {OAUTH_CONFIG.error_close / 1000} second(s)...</p>
                 </div>
             )}
 
             {status === "success" && (
-                <div className="info-card success">
-                    <p>Success!</p>
+                <div className="status-card success">
+                    <p className="title">Success!</p>
                     <p>{message as string}</p>
+                    <p>Tab will close in {OAUTH_CONFIG.success_close / 1000} seconds...</p>
                 </div>
             )}
 
