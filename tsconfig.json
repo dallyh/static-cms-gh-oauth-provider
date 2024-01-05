@@ -1,22 +1,16 @@
 {
-  "extends": "astro/tsconfigs/strict",
-  "compilerOptions": {
-    "baseUrl": "D:/Repositories/Personal/static-cms-gh-oauth-provider-2",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@config": [
-        "src/config.ts"
-      ],
-      "@lib/*": [
-        "src/lib/*"
-      ],
-      "@utils/*": [
-        "src/utils/*"
-      ]
-    },
-    "jsx": "react-jsx",
-    "jsxImportSource": "react"
-  }
+    "extends": "astro/tsconfigs/strict",
+    "compilerOptions": {
+        "baseUrl": "D:/Repositories/Personal/static-cms-gh-oauth-provider-2",
+        "paths": {
+            "@/*": ["src/*"],
+            "@config": ["src/config.ts"],
+            "@lib/*": ["src/lib/*"],
+            "@utils/*": ["src/utils/*"],
+            "@components/*": ["src/components/*"],
+            "@layouts/*": ["src/layouts/*"],
+        },
+        "jsx": "react-jsx",
+        "jsxImportSource": "react"
+    }
 }
