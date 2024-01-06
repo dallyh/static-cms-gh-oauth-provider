@@ -1,39 +1,166 @@
 ---
-import AuthStatus from "@/components/astro/AuthStatus.astro";
-import Layout from "@/layouts/BaseLayout.astro"
+import { OAUTH_CONFIG } from "@/config";
+import Layout from "@/layouts/BaseLayout.astro";
+import { getToken, renderScript, validateState, type AuthError } from "@/lib/oauth2/oauth2";
 
-const RenderPage = async () => {
+type CallbackParams = Record<"code" | "state", string>;
+type QueryParams = AuthError | CallbackParams | undefined;
+type AuthStatus = "apierror" | "error" | "success";
+
+type ValidateRequest = {
+    status: AuthStatus;
+    message: string | QueryParams;
+    injectScript?: string;
+};
+
+const validateRequest = async (): Promise<ValidateRequest> => {
     const params = Astro.url.searchParams;
-    const searchParams = Object.fromEntries(params);
+    const queryParams = Object.fromEntries(params) as QueryParams;
 
-    if ("error" in searchParams) {
-        return AuthStatus(searchParams as AuthError, "apierror");
+    if (queryParams === undefined) {
+        return {
+            status: "error",
+            message: "There were no URL query parameters.",
+        };
     }
 
-    if (!validateState(searchParams.state, Astro.cookies)) {
-        return AuthStatus("The OAuth state did not match!", "error");
+    if ("error" in queryParams) {
+        return {
+            status: "apierror",
+            message: queryParams,
+            injectScript: renderScript("error", queryParams),
+        };
     }
 
-    const headersList = Astro.request.headers;
-    const host = headersList.get("host");
-    const result = await getToken((searchParams as CallbackParams).code, host);
+    if (queryParams.code === undefined) {
+        return {
+            status: "error",
+            message: "Required parameters were missing.",
+        };
+    }
+
+    if (!validateState(queryParams.state, Astro.cookies)) {
+        return {
+            status: "error",
+            message: "The OAuth state did not match!",
+        };
+    }
+
+    const host = Astro.request.headers.get("host");
+    const result = await getToken(queryParams.code, host);
 
     if (result === undefined) {
-        return AuthStatus("Could not get data.", "error");
+        return {
+            status: "error",
+            message: "Could not get data.",
+        };
     }
 
     if ("error" in result) {
-        const injectScript = renderBody("error", result);
-        return AuthStatus(result, "apierror", injectScript);
+        return {
+            status: "apierror",
+            message: result,
+            injectScript: renderScript("error", queryParams),
+        };
     }
 
-    const injectScript = renderBody("success", { token: result.access_token, provider: "github" });
-    return AuthStatus("Authorized!", "success", injectScript);*/
-
-    return <div>Good morning!</div>;
+    return {
+        status: "success",
+        message: "You have been successfully authorized!",
+        injectScript: renderScript("success", { token: result.access_token, provider: "github" }),
+    };
 };
+
+const request = await validateRequest();
 ---
 
-<Layout title="Welcome to Astro.">
-    {Done}
+<Layout title="OAuth status">
+    {
+        request.status === "error" && (
+            <div class="status-card error">
+                <p class="title">An error occured</p>
+                <p>{request.message}</p>
+            </div>
+        )
+    }
+
+    {
+        request.status === "apierror" && (
+            <div class="status-card error">
+                <p class="title">GitHub API returned an error</p>
+                <p>{(request.message as AuthError).error}</p>
+                <p>Description: {(request.message as AuthError).error_description}</p>
+                <p>
+                    Help: <a href={(request.message as AuthError).error_uri}>{(request.message as AuthError).error_uri}</a>
+                </p>
+                <p>Tab will close in {OAUTH_CONFIG.error_close_timeout / 1000} second(s)...</p>
+            </div>
+        )
+    }
+
+    {
+        request.status === "success" && (
+            <div class="status-card success">
+                <p class="title">Success!</p>
+                <p>{request.message}</p>
+                <p>Tab will close in {OAUTH_CONFIG.success_close_timeout / 1000} seconds...</p>
+            </div>
+        )
+    }
+
+    {request.injectScript && <div id="script" set:html={request.injectScript} />}
 </Layout>
+
+<style>
+    .status-card {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        background-color: #23262d;
+        border-radius: 7px;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        max-width: 600px;
+
+        &.error {
+            border: 1px solid rgba(255, 0, 0, 0.5);
+
+            .title {
+                color: red;
+            }
+        }
+
+        &.success {
+            border: 1px solid rgba(0, 128, 0, 0.5);
+
+            .title {
+                color: green;
+            }
+        }
+
+        > a {
+            width: 100%;
+            text-decoration: none;
+            line-height: 1.4;
+            padding: calc(1.5rem - 1px);
+            border-radius: 8px;
+            color: white;
+            background-color: #23262d;
+            opacity: 0.8;
+        }
+
+        .title {
+            margin: 0;
+            font-size: 1.25rem;
+            align-self: center;
+            font-weight: 700;
+        }
+
+        p {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+    }
+</style>

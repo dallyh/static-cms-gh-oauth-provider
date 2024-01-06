@@ -10,7 +10,6 @@ export async function GET({ request, redirect, cookies }: APIContext) {
     const host = request.headers.get("host");
     const oauth2 = create();
 
-    // TO-DO: Find a way to delete the cookie after the auth is successfull
     cookies.set("oauthState", oauthState, { secure: true });
 
     const url = oauth2.authorizeURL({

@@ -6,6 +6,6 @@ export const OAUTH_CONFIG = {
     scope: "repo,user",
     client_id: import.meta.env.OAUTH_CLIENT_ID,
     client_secret: import.meta.env.OAUTH_CLIENT_SECRET,
-    success_close: 1000,
-    error_close: 3000,
+    success_close_timeout: 1000,
+    error_close_timeout: 5000,
 };
