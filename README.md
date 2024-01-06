@@ -1,40 +1,35 @@
-# Astro Starter Kit: Basics
+This is an [Astro](https://astro.build/) project which faciliates OAuth flow to use with [Static CMS/Decap CMS](https://staticcms.org).
 
-```sh
-npm create astro@latest -- --template basics
-```
+[![Netlify Status](https://api.netlify.com/api/v1/badges/bc436ee7-8775-46aa-a9ad-599d91f8a45d/deploy-status)](https://app.netlify.com/sites/static-cms-gh-oauth-provider/deploys)
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+## Usage
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Firstly install packages with `npm install` and then run development server with `npm run dev`.
+Then set up GitHub OAuth application, where redirect URL should be `https://example.com/api/auth/done`. Everything else does not matter.
+Place the Client ID, Client Secret and Site URL into their corresponding environment variables.
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+After all of this is done, it can be hosted for example on [Netlify](https://netlify.com) or any other provider, that supports Astro.
 
-## 🚀 Project Structure
+## Routes
 
-Inside of your Astro project, you'll see the following folders and files:
+-   `/api/auth`: faciliates redirect to GitHub's `/login/oauth/authorize` api with the required parameters
+-   `/api/auth/done`: uses the `authorization code` to obtain `access_token` and injects the required script with the provided data to authorize Static CMS with GitHub. Also displays if something goes wrong.
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   └── Card.astro
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## Environment variables
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+For this application to work, those environment variables have to be set (keep them secret),
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+-   **OAUTH_CLIENT_ID**: GitHub OAuth application client id
+-   **OAUTH_CLIENT_SECRET**: GitHub OAuth application client secret
+-   **SITE_URL**: Sets the Site URL for production build in the config
 
-Any static assets, like images, can be placed in the `public/` directory.
+## Credits
+
+Many thanks goes to:
+
+-   Tyler Gaw for [this blog post](https://tylergaw.com/blog/netlify-cms-custom-oath-provider/) and [this example](https://github.com/tylergaw/netlify-cms-github-oauth-provider-server-example)
+-   Václav Klecanda for [his version of the provider](https://github.com/vencax/netlify-cms-github-oauth-provider)
+-   [Daniel Lautzenheiser](https://github.com/KaneFreeman) for [this example](https://github.com/StaticJsCMS/static-cms-next-vercel-template/tree/main)
 
 ## 🧞 Commands
 
@@ -43,12 +38,9 @@ All commands are run from the root of the project, from a terminal:
 | Command                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
 | `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
+| `npm run dev`             | Starts local dev server at `localhost:3010`      |
 | `npm run build`           | Build your production site to `./dist/`          |
 | `npm run preview`         | Preview your build locally, before deploying     |
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+| `npm run prettier`        | Runs prettier on the `root` directory.           |
