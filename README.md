@@ -1,7 +1,5 @@
 This is an [Astro](https://astro.build/) project which faciliates OAuth flow to use with [Static CMS/Decap CMS](https://staticcms.org).
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/bc436ee7-8775-46aa-a9ad-599d91f8a45d/deploy-status)](https://app.netlify.com/sites/static-cms-gh-oauth-provider/deploys)
-
 ## Usage
 
 Firstly install packages with `npm install` and then run development server with `npm run dev`.
